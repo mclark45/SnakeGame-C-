@@ -34,6 +34,13 @@ void SnakeGame::init() {
 		printf("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
 		_running = false;
 	}
+
+    srand(time(NULL));
+    for (int i = 0; i < SCREEN_HEIGHT / 32; i++) {
+        for (int j = 0; j < SCREEN_WIDTH / 32; j++) {
+            rotations[i][j] = (rand() % 4) * 90;
+        }
+    }
 }
 
 void SnakeGame::initSnake(int x, int y, int length) {
@@ -150,12 +157,12 @@ void SnakeGame::handleEvents() {
                 break;
 
             case SDLK_SPACE:
-                std::cout << "Space bar pressed" << std::endl;
                 if (_currentState == GameState::MENU) {
-                    _currentState = GameState::GAME;
-                }
-                else if (_currentState == GameState::GAME_OVER) {
-                    _currentState = GameState::MENU;
+                    _xMove = speed;
+                    _yMove = 0;
+                    _moveX = true;
+                    _moveY = false;
+                    _canMove = false;
                     _score = 0;
                     _snake.clear();
                     initSnake(100, 100, 4);
@@ -163,6 +170,10 @@ void SnakeGame::handleEvents() {
                     _apple.x = _dis(_gen);
                     _dis = std::uniform_int_distribution<int>(200, SCREEN_HEIGHT - pixel_size);
                     _apple.y = _dis(_gen);
+                    _currentState = GameState::GAME;
+                }
+                else if (_currentState == GameState::GAME_OVER) {
+                    _currentState = GameState::MENU;
                 }
                 break;
 
@@ -185,7 +196,8 @@ void SnakeGame::update() {
 
             // Move the body of the snake
             for (int i = 1; i < _snake.size(); i++) {
-                _snake[i] = prevPositions[i - 1];
+                _snake[i].x = prevPositions[i - 1].x;
+                _snake[i].y = prevPositions[i - 1].y;
             }
 
             _canMove = true;
@@ -277,7 +289,8 @@ void SnakeGame::render() {
     for (int i = 0; i < SCREEN_HEIGHT / 32; i++) {
         for (int j = 0; j < SCREEN_WIDTH / 32; j++) {
             SDL_Rect rect = { j * 32, i * 32, 32, 32 };
-            SDL_RenderCopy(_renderer, _grass, NULL, &rect);
+            double angle = rotations[i][j];
+            SDL_RenderCopyEx(_renderer, _grass, NULL, &rect, angle, NULL, SDL_FLIP_NONE);
         }
     }
 

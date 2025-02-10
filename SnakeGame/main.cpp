@@ -13,7 +13,6 @@ int main(int argc, char* args[]) {
     std::uniform_int_distribution<int> dis(200, 350);
 
     game.initSnake(100, 100, 4);
-    game.setApplePosition(dis(gen), dis(gen));
 
     while (game.isRunning()) {
         game._frameStart = SDL_GetTicks();

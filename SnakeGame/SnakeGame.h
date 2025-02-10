@@ -11,8 +11,8 @@ const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 const int FPS = 10;
 const int frameDelay = 1000 / FPS;
-const int speed = 1;
 const int pixel_size = 32;
+const int speed = 1;
 
 enum class GameState {
     MENU,
@@ -30,6 +30,7 @@ public:
     ~SnakeGame();
 
     Uint32 _frameStart;
+    int rotations[SCREEN_HEIGHT / pixel_size][SCREEN_WIDTH / pixel_size];
 
     void init();
     void initSnake(int x, int y, int length);
