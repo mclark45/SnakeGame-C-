@@ -97,6 +97,13 @@ bool SnakeGame::loadTextures() {
         return false;
     }
 
+    _logo = IMG_LoadTexture(_renderer, "snakeLogo.png");
+    if (_logo == NULL) {
+        printf("SDL could not load texture! SDL Error: %s\n", SDL_GetError());
+        _running = false;
+        return false;
+    }
+
     _gameOver = IMG_LoadTexture(_renderer, "snakeLogo.png");
     if (_gameOver == NULL) {
         printf("SDL could not load texture! SDL Error: %s\n", SDL_GetError());
@@ -322,7 +329,7 @@ void SnakeGame::render() {
         SDL_RenderPresent(_renderer);
     }
     else if (_currentState == GameState::GAME_OVER) {
-        SDL_Rect gameOverRect = { (SCREEN_WIDTH - 256) / 2, (SCREEN_HEIGHT - 256) / 2, 256, 256 };
+        SDL_Rect gameOverRect = { (SCREEN_WIDTH - 300) / 2, (SCREEN_HEIGHT - 100) / 2, 300, 100 };
         SDL_RenderCopy(_renderer, _gameOver, NULL, &gameOverRect);
         SDL_RenderPresent(_renderer);
     }
