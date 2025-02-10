@@ -133,6 +133,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SnakeGame.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="apple.png" />
@@ -140,6 +141,9 @@
     <Image Include="snakeBody.png" />
     <Image Include="snakeHead.png" />
     <Image Include="snakeLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SnakeGame.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
