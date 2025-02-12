@@ -8,10 +8,6 @@ int main(int argc, char* args[]) {
         return 1;
     }
 
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dis(200, 350);
-
     game.initSnake(100, 100, 4);
 
     while (game.isRunning()) {

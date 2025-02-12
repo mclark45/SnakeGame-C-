@@ -52,13 +52,15 @@ void SnakeGame::initSnake(int x, int y, int length) {
 
     for (int i = 0; i < length; i++) {
         SnakeSegment snake = { x - i * 32, y };
-        _snake.push_back(snake);
+        _snake.push_back({
+            SCREEN_WIDTH / 2 - (SCREEN_WIDTH / 2) % pixel_size,
+            SCREEN_HEIGHT / 2 - (SCREEN_HEIGHT / 2) % pixel_size }
+        );
     }
 }
 
 void SnakeGame::setApplePosition(int x, int y) {
-    _apple.x = x;
-    _apple.y = y;
+    std::tie(_apple.x, _apple.y) = applePosition(_apple);
 }
 
 bool SnakeGame::loadTextures() {
@@ -173,10 +175,7 @@ void SnakeGame::handleEvents() {
                     _score = 0;
                     _snake.clear();
                     initSnake(100, 100, 4);
-                    _dis = std::uniform_int_distribution<int>(200, SCREEN_WIDTH - pixel_size);
-                    _apple.x = _dis(_gen);
-                    _dis = std::uniform_int_distribution<int>(200, SCREEN_HEIGHT - pixel_size);
-                    _apple.y = _dis(_gen);
+                    std::tie(_apple.x, _apple.y) = applePosition(_apple);
                     _currentState = GameState::GAME;
                 }
                 else if (_currentState == GameState::GAME_OVER) {
@@ -201,11 +200,16 @@ void SnakeGame::update() {
             _snake[0].x += _xMove * pixel_size;
             _snake[0].y += _yMove * pixel_size;
 
+            // Align snake with grid
+            _snake[0].x = (_snake[0].x / pixel_size) * pixel_size;
+            _snake[0].y = (_snake[0].y / pixel_size) * pixel_size;
+
             // Move the body of the snake
             for (int i = 1; i < _snake.size(); i++) {
                 _snake[i].x = prevPositions[i - 1].x;
                 _snake[i].y = prevPositions[i - 1].y;
             }
+
 
             _canMove = true;
 
@@ -221,10 +225,7 @@ void SnakeGame::update() {
                 _score += 10;
 
                 // Generate new apple position
-                _dis = std::uniform_int_distribution<int>(0, SCREEN_WIDTH - pixel_size);
-                _apple.x = _dis(_gen);
-                _dis = std::uniform_int_distribution<int>(0, SCREEN_HEIGHT - pixel_size);
-                _apple.y = _dis(_gen);
+                std::tie(_apple.x, _apple.y) = applePosition(_apple);
 
                 // Add new segment to snake
                 if (!_snake.empty()) {
@@ -288,6 +289,35 @@ bool SnakeGame::checkCollision(SDL_Rect A, SDL_Rect B)
     return true;
 }
 
+std::tuple<int, int> SnakeGame::applePosition(SnakeSegment apple) {
+    _dis = std::uniform_int_distribution<int>(0, (SCREEN_WIDTH / pixel_size) - 1);
+    apple.x = _dis(_gen) * pixel_size;
+    _dis = std::uniform_int_distribution<int>(0, (SCREEN_HEIGHT / pixel_size) - 1);
+    apple.y = _dis(_gen) * pixel_size;
+
+    SDL_Rect appleRect = { apple.x, apple.y, pixel_size, pixel_size };
+
+    bool isValidPosition = false;
+    while (!isValidPosition) {
+        isValidPosition = true;
+        for (int i = 0; i < _snake.size(); i++) {
+            SDL_Rect snakeBodyRect = { _snake[i].x, _snake[i].y, pixel_size, pixel_size };
+
+            if (checkCollision(appleRect, snakeBodyRect)) {
+                isValidPosition = false;
+                _dis = std::uniform_int_distribution<int>(0, (SCREEN_WIDTH / pixel_size) - 1);
+                apple.x = _dis(_gen) * pixel_size;
+                _dis = std::uniform_int_distribution<int>(0, (SCREEN_HEIGHT / pixel_size) - 1);
+                apple.y = _dis(_gen) * pixel_size;
+                appleRect = { apple.x, apple.y, pixel_size, pixel_size };
+                break;
+            }
+        }
+    }
+
+    return std::make_tuple(apple.x, apple.y);
+}
+
 void SnakeGame::render() {
     SDL_SetRenderDrawColor(_renderer, 1, 50, 32, 1);
     SDL_RenderClear(_renderer);
@@ -307,8 +337,9 @@ void SnakeGame::render() {
         SDL_RenderPresent(_renderer);
     }
     else if (_currentState == GameState::GAME) {
+
         // Render apple
-        SDL_Rect appleRect = { _apple.x, _apple.y, 32, 32 };
+        SDL_Rect appleRect = { _apple.x, _apple.y, pixel_size, pixel_size };
         SDL_RenderCopy(_renderer, _appleTexture, NULL, &appleRect);
 
         // Render snake
@@ -344,6 +375,10 @@ void SnakeGame::flipSprite(int* xMove, int* yMove, SDL_RendererFlip* flip, doubl
         *angle = 90.0;
     else if (*yMove < 0 && *xMove == 0)
         *angle = -90.0;
+}
+
+GameState SnakeGame::getCurrentState() {
+    return _currentState;
 }
 
 void SnakeGame::destroy() {

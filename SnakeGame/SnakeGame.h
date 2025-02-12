@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <random>
+#include <tuple>
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -39,10 +40,12 @@ public:
     void handleEvents();
     void update();
     bool checkCollision(SDL_Rect A, SDL_Rect B);
+    std::tuple<int, int>applePosition(SnakeSegment apple);
     void render();
     void flipSprite(int* xMove, int* yMove, SDL_RendererFlip* flip, double* angle);
     void destroy();
     bool isRunning() const { return _running; }
+    GameState getCurrentState();
 
 private:
     SDL_Window* _window;
