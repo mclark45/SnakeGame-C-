@@ -207,7 +207,7 @@ void SnakeGame::update() {
             _canMove = true;
 
             // Check for collision with wall
-            if (_snake[0].x < 0 || _snake[0].x > SCREEN_WIDTH || _snake[0].y < 0 || _snake[0].y > SCREEN_HEIGHT) {
+            if (_snake[0].x < 0 || _snake[0].x >= SCREEN_WIDTH || _snake[0].y < 0 || _snake[0].y >= SCREEN_HEIGHT) {
                 _currentState = GameState::GAME_OVER;
             }
 
